@@ -27,6 +27,14 @@ async function run() {
         await client.connect();//remove this before sending to production
 
         const foodCollection = client.db('flavorFusion').collection('food');
+        const purchaseFoodCollection = client.db('flavorFusion').collection('purchaseFood');
+
+        app.post('/purchaseFood', async (req, res) => {
+            const purchaseFood = req.body;
+            console.log(purchaseFood);
+            const result = await purchaseFoodCollection.insertOne(purchaseFood);
+            res.send(result);
+        })
 
         app.get('/foods', async (req, res) => {
             const cursor = foodCollection.find();
