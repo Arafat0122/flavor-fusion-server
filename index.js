@@ -31,6 +31,16 @@ async function run() {
         const galleryCollection = client.db('flavorFusion').collection('gallery');
 
         //Purchase Data api
+
+        app.get('/purchaseFood', async (req, res) => {
+            let query = {};
+            if (req.query?.email) {
+                query = { email: req.query.email }
+            }
+            const result = await purchaseFoodCollection.find(query).toArray();
+            res.send(result);
+        })
+
         app.post('/purchaseFood', async (req, res) => {
             const purchaseFood = req.body;
             console.log(purchaseFood);
@@ -68,6 +78,13 @@ async function run() {
             const result = await galleryCollection.findOne(query);
             res.send(result)
         })
+
+        app.post('/gallery', async (req, res) => {
+            const gallery = req.body;
+            console.log(gallery);
+            const result = await galleryCollection.insertOne(gallery);
+            res.send(result);
+        });
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
