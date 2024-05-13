@@ -28,7 +28,9 @@ async function run() {
 
         const foodCollection = client.db('flavorFusion').collection('food');
         const purchaseFoodCollection = client.db('flavorFusion').collection('purchaseFood');
+        const galleryCollection = client.db('flavorFusion').collection('gallery');
 
+        //Purchase Data api
         app.post('/purchaseFood', async (req, res) => {
             const purchaseFood = req.body;
             console.log(purchaseFood);
@@ -36,6 +38,8 @@ async function run() {
             res.send(result);
         })
 
+
+        //Foods Data api
         app.get('/foods', async (req, res) => {
             const cursor = foodCollection.find();
             const result = await cursor.toArray();
@@ -47,6 +51,21 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await foodCollection.findOne(query);
+            res.send(result)
+        })
+
+
+        //Gallery Data api
+        app.get('/gallery', async (req, res) => {
+            const cursor = galleryCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        app.get('/gallery/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await galleryCollection.findOne(query);
             res.send(result)
         })
 
