@@ -54,7 +54,7 @@ async function run() {
             const cursor = foodCollection.find();
             const result = await cursor.toArray();
             res.send(result);
-        })
+        });
 
 
         app.get('/foods/:id', async (req, res) => {
@@ -62,7 +62,14 @@ async function run() {
             const query = { _id: new ObjectId(id) };
             const result = await foodCollection.findOne(query);
             res.send(result)
-        })
+        });
+
+        app.post('/foods', async (req, res) => {
+            const food = req.body;
+            console.log(food);
+            const result = await foodCollection.insertOne(food);
+            res.send(result);
+        });
 
 
         //Gallery Data api
