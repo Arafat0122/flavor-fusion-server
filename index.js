@@ -33,6 +33,7 @@ async function run() {
         //Purchase Data api
 
         app.get('/purchaseFood', async (req, res) => {
+            console.log(req.query)
             let query = {};
             if (req.query?.email) {
                 query = { email: req.query.email }
@@ -50,11 +51,17 @@ async function run() {
 
 
         //Foods Data api
+
         app.get('/foods', async (req, res) => {
-            const cursor = foodCollection.find();
-            const result = await cursor.toArray();
+            console.log(req.query)
+            let query = {};
+            if (req.query?.email) {
+                query = { email: req.query.email }
+            }
+            const result = await foodCollection.find(query).toArray();
             res.send(result);
-        });
+        })
+
 
 
         app.get('/foods/:id', async (req, res) => {
@@ -64,12 +71,38 @@ async function run() {
             res.send(result)
         });
 
+
+
         app.post('/foods', async (req, res) => {
             const food = req.body;
             console.log(food);
             const result = await foodCollection.insertOne(food);
             res.send(result);
         });
+
+        app.put('/foods/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateFood = req.body;
+
+            const food = {
+                $set: {
+                    foodName: updateFood.foodName,
+                    foodImage: updateFood.foodImage,
+                    foodCategory: updateFood.foodCategory,
+                    price: updateFood.price,
+                    foodOrigin: updateFood.foodOrigin,
+                    quantity: updateFood.quantity,
+                    ingredients: updateFood.ingredients,
+                    making: updateFood.making,
+                    description: updateFood.description
+                }
+            }
+
+            const result = await foodCollection.updateOne(filter, food, options);
+            res.send(result);
+        })
 
 
         //Gallery Data api
