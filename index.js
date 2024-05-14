@@ -49,6 +49,13 @@ async function run() {
             res.send(result);
         })
 
+        app.delete('/purchaseFood/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await purchaseFoodCollection.deleteOne(query);
+            res.send(result);
+        })
+
 
         //Foods Data api
 
