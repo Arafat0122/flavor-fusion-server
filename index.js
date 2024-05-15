@@ -1,12 +1,20 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
 
 //middleware
-app.use(cors());
+app.use(
+    cors({
+        origin: [
+            "http://localhost:5173",
+        ],
+        credentials: true,
+    })
+);
 app.use(express.json());
 
 
@@ -30,10 +38,29 @@ async function run() {
         const purchaseFoodCollection = client.db('flavorFusion').collection('purchaseFood');
         const galleryCollection = client.db('flavorFusion').collection('gallery');
 
+        // Auth related api
+        app.post('/jwt', async (req, res) => {
+            const user = req.body;
+            console.log(user)
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'none'
+            }).send({ success: true });
+        })
+
+        app.post('/logout', async (req, res) => {
+            const user = req.body;
+
+            console.log(user)
+            res.clearCookie('token', { maxAge: 0 }).send({ success: true })
+        })
+
+
         //Purchase Data api
 
         app.get('/purchaseFood', async (req, res) => {
-            console.log(req.query)
             let query = {};
             if (req.query?.email) {
                 query = { email: req.query.email }
@@ -44,9 +71,22 @@ async function run() {
 
         app.post('/purchaseFood', async (req, res) => {
             const purchaseFood = req.body;
-            console.log(purchaseFood);
             const result = await purchaseFoodCollection.insertOne(purchaseFood);
             res.send(result);
+        });
+
+        // As wanted
+        app.post('/purchaseFood', async (req, res) => {
+            const purchaseFood = req.body;
+
+            // Increment purchase count
+            const foodId = purchaseFood.foodId; // Assuming you have a unique food identifier in your purchaseFood object
+            await foodCollection.updateOne({ _id: new ObjectId(foodId) }, { $inc: { purchaseCount: 1 } });
+            console.log(foodId)
+            // Insert purchase data
+            const result = await purchaseFoodCollection.insertOne(purchaseFood);
+            res.send(result);
+            console.log(result)
         })
 
         app.delete('/purchaseFood/:id', async (req, res) => {
@@ -60,7 +100,6 @@ async function run() {
         //Foods Data api
 
         app.get('/foods', async (req, res) => {
-            console.log(req.query)
             let query = {};
             if (req.query?.email) {
                 query = { email: req.query.email }
@@ -82,7 +121,6 @@ async function run() {
 
         app.post('/foods', async (req, res) => {
             const food = req.body;
-            console.log(food);
             const result = await foodCollection.insertOne(food);
             res.send(result);
         });
@@ -128,7 +166,6 @@ async function run() {
 
         app.post('/gallery', async (req, res) => {
             const gallery = req.body;
-            console.log(gallery);
             const result = await galleryCollection.insertOne(gallery);
             res.send(result);
         });
