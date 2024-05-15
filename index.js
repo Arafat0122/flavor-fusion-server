@@ -51,6 +51,12 @@ const verifyToken = (req, res, next) => {
     })
 }
 
+const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+};
+
 
 async function run() {
     try {
@@ -64,16 +70,12 @@ async function run() {
         app.post('/jwt', logger, async (req, res) => {
             const user = req.body;
             const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
-            res.cookie('token', token, {
-                httpOnly: true,
-                secure: true,
-                sameSite: 'none'
-            }).send({ success: true });
+            res.cookie('token', token, cookieOptions).send({ success: true });
         })
 
         app.post('/logout', async (req, res) => {
             const user = req.body;
-            res.clearCookie('token', { maxAge: 0 }).send({ success: true })
+            res.clearCookie('token', { ...cookieOptions, maxAge: 0 }).send({ success: true })
         })
 
 
@@ -211,7 +213,7 @@ async function run() {
 
 
     } finally {
-        
+
     }
 }
 run().catch(console.dir);
