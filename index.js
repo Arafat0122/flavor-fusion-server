@@ -11,7 +11,8 @@ const port = process.env.PORT || 5000;
 app.use(
     cors({
         origin: [
-            "http://localhost:5173",
+            "https://flavor-fusion-c5a15.web.app",
+            "https://flavor-fusion-c5a15.firebaseapp.com"
         ],
         credentials: true,
     })
